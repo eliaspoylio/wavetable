@@ -2,6 +2,8 @@ use rodio::{OutputStream, Source};
 use std::thread;
 use std::time::Duration;
 
+mod fork;
+
 
 struct WaveTableOscillator {
     sample_rate: u32,
@@ -100,6 +102,12 @@ fn play_note(wave_table: Vec<f32>, frequency: f32, duration: u64) {
 
     let mut oscillator = WaveTableOscillator::new(44100, wave_table);
     oscillator.set_frequency(frequency);
+
+    //let oscillator = oscillator.fade_in(Duration::from_millis(duration/4));
+    //let oscillator = oscillator.speed(0.1);
+    //let oscillator = oscillator.amplify(0.1);
+    //let oscillator = oscillator.take_duration(Duration::from_millis(duration/4));
+    let oscillator = fork::fadeout(oscillator, Duration::from_millis(duration));
 
     let (_stream, _stream_handle) = OutputStream::try_default().unwrap();
     let _result = _stream_handle.play_raw(oscillator.convert_samples());
